@@ -212,8 +212,9 @@ export function RoomsColumn({
 }) {
   useTick(15_000);
   const now = Date.now();
+  const offline = controller.connection === "offline";
   return (
-    <nav className="rooms-column" aria-label="Rooms">
+    <nav className="rooms-column" aria-label="Rooms" data-offline={offline || undefined}>
       <div className="rooms-column-inner">
         <div className="rooms-column-head">
           <h2>Rooms</h2>
@@ -243,6 +244,8 @@ export function RoomsColumn({
                   )}
                 </span>
                 <span className="room-card-line">
+                  {/* Home Assistant out of reach: what each room last said, and said so. */}
+                  {offline ? "Last known: " : ""}
                   {status.text}
                   {status.tone === "watering" || status.tone === "holding"
                     ? ""

@@ -186,6 +186,9 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.rooms-column[data-offline] .room-card {
+  opacity: 0.7;
+}
 .room-card[data-tone="stopped"] .room-card-line,
 .room-chip[data-tone="stopped"] {
   color: var(--tone-critical-ink);
