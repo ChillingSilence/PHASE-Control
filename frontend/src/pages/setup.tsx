@@ -903,7 +903,7 @@ export function Setup({
                     !connected
                       ? "Connect to Home Assistant to run a test."
                       : draft.prefix !== controller.room.room.prefix
-                        ? `A test runs in the room chosen under Room in the menu: choose ${draft.room_name} there to test it.`
+                        ? `A test runs in the room on show: choose ${draft.room_name} in the rooms list (or its chip) to test it.`
                         : dirty
                           ? "Save or discard your changes first: a test runs on the saved configuration."
                           : null
