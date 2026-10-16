@@ -28,6 +28,9 @@ version being released.
 - Old controls Home Assistant showed that didn't water anything are gone, among them Irrigation Phase and Strategy Stage.
 - Rooms & hardware no longer asks for the room's lights, which nothing used: day and night come from the lights-on and lights-off times.
 - Today can switch EC stacking on and set the minimum P1 shots, and a zone paused by hand in Home Assistant shows it and can be resumed.
+- A new look on every page, alike on a phone, a tablet and a computer: the room's day as a clock, what comes next, and a card for each zone.
+- How a room runs is one choice, Steering, Watching only or Room off, and you can see at a glance whether it follows its schedule or Today's targets.
+- Feed has a Recipes tab, Insights shows each zone's week, Rooms & hardware draws how water reaches each zone, and you can choose the room this device opens on.
 
 ## 1.2.0 - 2026-10-16
 
