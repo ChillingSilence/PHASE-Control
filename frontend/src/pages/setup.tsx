@@ -41,6 +41,7 @@ import { errorText } from "@/lib/utils";
 import { BATCH_SWITCH_KEYS, DOSER_KEYS } from "@/lib/feed";
 import { setupChanges } from "@/lib/setup-changes";
 import type { SetupCandidate, SetupDocument, SetupRoom, SetupZone } from "@/lib/operator-types";
+import { PlumbingDiagram } from "@/components/plumbing-diagram";
 
 function MappingPicker({
   label,
@@ -611,7 +612,8 @@ export function Setup({
                   <div>
                     <h2>Shared room hardware</h2>
                     <p className="muted">
-                      How the room is plumbed, then the switches that go with it.
+                      How the room is plumbed, then the switches that go with it. Click a part to
+                      map it.
                     </p>
                   </div>
                 </div>
@@ -664,6 +666,7 @@ export function Setup({
                     )}
                   </div>
                 )}
+                <PlumbingDiagram draft={draft} plumbing={plumbing} />
                 <div className="workspace-form-grid">
                   {hardwareFields
                     .filter(([key]) => plumbingUses(plumbing, key))
