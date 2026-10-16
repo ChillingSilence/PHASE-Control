@@ -5,6 +5,16 @@ import { todayMeaning, type ScheduleStatus } from "@/lib/schedule-words";
 import type { Controller } from "@/lib/types";
 import "./targets-banner.css";
 
+/** What each state of the schedule means for the room, said on the Schedule itself. */
+const SCHEDULE_NOTES: Record<ScheduleStatus, string> = {
+  manual: "This schedule isn’t armed: the room runs on Today’s targets.",
+  draft: "This schedule isn’t armed: the room runs on Today’s targets.",
+  armed: "Armed: it takes over from Today’s targets at the next lights-on.",
+  active: "Running: each lights-on, the room’s targets for the day come from this schedule.",
+  disarming: "Disarming: Today’s targets take back over at the next lights-on.",
+  error: "It’s holding its zones until it’s cleared: they get only emergency and watchdog shots.",
+};
+
 /** The days of its schedule a room's zones are on today, as the integration publishes them: "day
  * 23", "days 21–23", or "" when it says none. */
 export function scheduleDays(controller: Controller): string {
@@ -32,11 +42,14 @@ export function TargetsBanner({
   controller,
   status,
   open,
+  from = "today",
 }: {
   controller: Controller;
   status: ScheduleStatus;
   /** Where its button goes: the Schedule from Today, Today from the Schedule. */
   open?: { label: string; href: string };
+  /** On the Schedule, said from there: Today's own words are about "the targets set here". */
+  from?: "today" | "schedule";
 }) {
   const name = controller.room.room.name;
   const day = scheduleDays(controller);
@@ -55,8 +68,10 @@ export function TargetsBanner({
         ? `The schedule is in charge${day ? `: ${day}` : ""}`
         : "Today’s targets are in charge";
   const note =
-    todayMeaning(status) ??
-    "No schedule is armed: the room runs on the targets set here, every grow-day, until you change them.";
+    from === "schedule"
+      ? SCHEDULE_NOTES[status]
+      : (todayMeaning(status) ??
+        "No schedule is armed: the room runs on the targets set here, every grow-day, until you change them.");
   return (
     <div
       className="targets-banner"

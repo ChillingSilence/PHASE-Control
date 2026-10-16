@@ -424,6 +424,38 @@ export function useDayData(controller: Controller) {
 }
 
 export type DayData = ReturnType<typeof useDayData>;
+export type Lanes = ReturnType<typeof useLanes>;
+/** Today's lanes once the day's history is in, else null: the hook runs only when it can. */
+export function WithLanes({
+  controller,
+  data,
+  children,
+}: {
+  controller: Controller;
+  data: DayData;
+  children: (lanes: Lanes | null) => ReactNode;
+}) {
+  return data.day && data.rows ? (
+    <LanesOf controller={controller} data={data}>
+      {children}
+    </LanesOf>
+  ) : (
+    children(null)
+  );
+}
+function LanesOf({
+  controller,
+  data,
+  children,
+}: {
+  controller: Controller;
+  data: DayData;
+  children: (lanes: Lanes) => ReactNode;
+}) {
+  const { day, rows, entities, now, earlier, layers } = data;
+  return children(useLanes(controller, day!, rows!, entities, now, earlier, layers));
+}
+
 export function DayTimeline({ controller }: { controller: Controller }) {
   return <DayChart controller={controller} data={useDayData(controller)} />;
 }

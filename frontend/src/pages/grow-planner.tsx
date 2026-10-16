@@ -436,6 +436,7 @@ export function GrowPlanner({
         controller={controller}
         status={shown}
         open={{ label: "Open Today’s targets", href: "#/strategy" }}
+        from="schedule"
       />
       <div className="schedule-intro">
         <p>
@@ -694,19 +695,21 @@ export function GrowPlanner({
                       Enter applies, Esc cancels, arrows move.
                     </p>
                   </div>
-                  <div className="workspace-actions">
-                    <Button
-                      variant={granularity === "week" ? "default" : "outline"}
+                  <div className="segmented" role="group" aria-label="Show the grow in">
+                    <button
+                      type="button"
+                      aria-pressed={granularity === "week"}
                       onClick={() => setGranularity("week")}
                     >
                       Weeks
-                    </Button>
-                    <Button
-                      variant={granularity === "day" ? "default" : "outline"}
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={granularity === "day"}
                       onClick={() => setGranularity("day")}
                     >
                       Days
-                    </Button>
+                    </button>
                   </div>
                 </div>
                 <div

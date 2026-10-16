@@ -89,6 +89,7 @@ export type Page =
   | "activity"
   | "settings"
   | "reservoir"
+  | "recipes"
   | "stock"
   | "help"
   | "more";
@@ -123,12 +124,12 @@ export function Heading({
   description?: string;
   action?: ReactNode;
 }) {
+  // The section's title and tab name the page: its own title is for a screen reader.
+  if (!description && !action) return <h2 className="sr-only">{title}</h2>;
   return (
     <div className="page-heading">
-      <div>
-        <h1>{title}</h1>
-        {description && <p>{description}</p>}
-      </div>
+      <h2 className="sr-only">{title}</h2>
+      {description ? <p>{description}</p> : <span />}
       {action}
     </div>
   );
@@ -342,7 +343,8 @@ export function HistoryChart({ controller, zones }: { controller: Controller; zo
       current = false;
     };
   }, [controller.roomId, controller.connection, key, hours, retry]);
-  const palette = ["#03a9f4", "#e5a43b", "#a57bf3", "#e97d98", "#43bdab"];
+  // The zones' own colours, as their dots and rings everywhere else.
+  const palette = [1, 2, 3, 4, 5, 6].map((n) => `var(--zone-${n})`);
   const visibleZones = zones.filter((zone) => !hiddenZones.includes(zone.id));
   const lines = visibleZones.flatMap((zone) =>
     (["vwc", "ec"] as const).map((kind) => {

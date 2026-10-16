@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { DayChart, useDayData, useLanes, type DayData } from "@/components/day-timeline";
+import { DayChart, useDayData, WithLanes } from "@/components/day-timeline";
 import { ReservoirSummary } from "@/components/tank-status";
 import { AllZonesSwitch } from "@/components/room-controls";
 import { Empty, ZoneDetails, type Page } from "@/components/dashboard";
@@ -23,38 +23,6 @@ import { coreWaterValue, waterParameters } from "@/lib/water-delivery";
 import { roomPlants } from "@/lib/water-view";
 import { time as clock } from "@/components/dashboard";
 import "./overview.css";
-
-type Lanes = ReturnType<typeof useLanes>;
-/** Today's lanes once the day's history is in, else null: the hook runs only when it can. */
-function WithLanes({
-  controller,
-  data,
-  children,
-}: {
-  controller: Controller;
-  data: DayData;
-  children: (lanes: Lanes | null) => ReactNode;
-}) {
-  return data.day && data.rows ? (
-    <LanesOf controller={controller} data={data}>
-      {children}
-    </LanesOf>
-  ) : (
-    children(null)
-  );
-}
-function LanesOf({
-  controller,
-  data,
-  children,
-}: {
-  controller: Controller;
-  data: DayData;
-  children: (lanes: Lanes) => ReactNode;
-}) {
-  const { day, rows, entities, now, earlier, layers } = data;
-  return children(useLanes(controller, day!, rows!, entities, now, earlier, layers));
-}
 
 const RANK = { critical: 0, warning: 1, info: 2 } as const;
 

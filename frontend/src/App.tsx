@@ -71,6 +71,7 @@ const sections = [
     label: "Feed",
     tabs: [
       { id: "reservoir", label: "Reservoir" },
+      { id: "recipes", label: "Recipes" },
       { id: "stock", label: "Stock tanks" },
     ],
   },
@@ -89,6 +90,7 @@ const sections = [
   tabs: readonly { id: Page; label: string }[];
 }[];
 type Section = (typeof sections)[number];
+const SHARED_DRAFT: readonly Page[] = ["reservoir", "recipes"];
 const sectionOf = (page: Page): Section =>
   sections.find((section) => section.tabs.some((tab) => tab.id === page)) ?? sections[0];
 function readPage(): Page {
@@ -120,7 +122,9 @@ export default function App() {
   }
   function navigate(next: Page, nextZone?: number) {
     if (next === page && nextZone === undefined) return;
-    confirmNavigation(() => {
+    // Feed's Reservoir and Recipes are one draft, saved together: moving between them keeps it.
+    const sameDraft = SHARED_DRAFT.includes(page) && SHARED_DRAFT.includes(next);
+    (sameDraft ? (action: () => void) => action() : confirmNavigation)(() => {
       setPage(next);
       setZoneId(nextZone);
       window.history.pushState(null, "", `#/${next}`);
@@ -139,7 +143,8 @@ export default function App() {
     const hashChange = () => {
       const next = readPage();
       if (next === pageRef.current) return;
-      if (dirtyRef.current) {
+      const sameDraft = SHARED_DRAFT.includes(pageRef.current) && SHARED_DRAFT.includes(next);
+      if (dirtyRef.current && !sameDraft) {
         window.history.replaceState(null, "", `#/${pageRef.current}`);
         setPending(() => () => {
           setPage(next);
@@ -171,7 +176,9 @@ export default function App() {
     (key) => descriptor(controller.states, controller.room.room)?.attributes?.[key],
   );
   const tabsOf = (item: Section) =>
-    item.tabs.filter((tab) => tab.id !== "reservoir" || reservoirMapped || page === "reservoir");
+    item.tabs.filter(
+      (tab) => !SHARED_DRAFT.includes(tab.id) || reservoirMapped || SHARED_DRAFT.includes(page),
+    );
   const tab = section.tabs.find((item) => item.id === page);
   const pageLabel =
     page === "more"
@@ -327,12 +334,13 @@ export default function App() {
             {page === "activity" && (
               <ActivityPage key={controller.roomId} controller={controller} />
             )}
-            {page === "reservoir" && (
+            {(page === "reservoir" || page === "recipes") && (
               <Reservoir
                 key={controller.roomId}
                 controller={controller}
                 navigate={navigate}
                 onDirtyChange={setWorkspaceDirty}
+                view={page}
               />
             )}
             {page === "stock" && (
