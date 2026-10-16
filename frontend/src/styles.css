@@ -873,81 +873,6 @@ input[type="number"] {
 .sensor-mini-list strong {
   text-align: right;
 }
-.workflow-steps {
-  display: flex;
-  gap: 35px;
-  align-items: center;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 23px;
-  margin-bottom: 25px;
-  color: var(--muted-foreground);
-  font-size: 12px;
-}
-.workflow-steps > span {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.workflow-steps i {
-  font-style: normal;
-  border: 1px solid var(--border);
-  width: 23px;
-  height: 23px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  font-size: var(--text-xs);
-}
-.workflow-steps .active {
-  color: var(--primary-strong);
-  font-weight: 600;
-}
-.workflow-steps .active i {
-  background: var(--primary);
-  border-color: var(--primary-strong);
-  color: var(--primary-foreground);
-}
-.strategy-layout {
-  display: grid;
-  grid-template-columns: 190px minmax(0, 1fr);
-  gap: 28px;
-  align-items: start;
-}
-.strategy-zone-picker {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  position: sticky;
-  top: 20px;
-}
-.strategy-zone-picker > button {
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 4px;
-  border: 1px solid transparent;
-  background: transparent;
-  text-align: left;
-  padding: 12px;
-  border-radius: 6px;
-}
-.strategy-zone-picker > button.selected {
-  background: var(--secondary);
-  border-color: var(--border);
-  color: var(--primary-strong);
-}
-.strategy-zone-picker button > span:first-child {
-  font-weight: 600;
-}
-.strategy-zone-picker button .small {
-  color: var(--muted-foreground);
-  font-size: var(--text-xs);
-}
-.strategy-zone-picker > p {
-  margin: 15px 8px;
-  font-size: var(--text-xs);
-  color: var(--muted-foreground);
-}
 .section-title {
   margin-bottom: 20px;
 }
@@ -1066,30 +991,6 @@ input[type="number"] {
 }
 .field-error {
   color: var(--destructive) !important;
-  font-size: var(--text-xs);
-}
-.draft-bar {
-  position: sticky;
-  bottom: 15px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 15px 20px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  box-shadow: 0 5px 25px rgb(20 45 30 / 12%);
-  z-index: 20;
-}
-.draft-bar > div {
-  flex: 1;
-}
-.draft-bar strong {
-  display: block;
-  font-size: 12px;
-}
-.draft-bar span {
-  color: var(--muted-foreground);
   font-size: var(--text-xs);
 }
 .review-dialog {
@@ -1411,10 +1312,6 @@ input[type="number"] {
     gap: 25px;
     grid-template-columns: 215px minmax(0, 1fr);
   }
-  .strategy-layout {
-    grid-template-columns: 160px minmax(0, 1fr);
-    gap: 20px;
-  }
   .setting-field {
     grid-template-columns: minmax(0, 1fr) 140px;
     gap: 15px;
@@ -1451,35 +1348,6 @@ input[type="number"] {
   }
   .page-heading > button {
     font-size: 12px;
-  }
-  .strategy-layout {
-    grid-template-columns: 1fr;
-    gap: 17px;
-  }
-  .strategy-zone-picker {
-    position: static;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 7px;
-  }
-  .strategy-zone-picker > .eyebrow,
-  .strategy-zone-picker > p {
-    display: none;
-  }
-  .strategy-zone-picker > button {
-    flex-direction: row;
-    align-items: center;
-    border-color: var(--border);
-    padding: 9px 12px;
-  }
-  .strategy-zone-picker button .small {
-    display: none;
-  }
-  .draft-bar {
-    flex-wrap: wrap;
-  }
-  .draft-bar > div {
-    flex-basis: 100%;
   }
 }
 @media (max-width: 720px) {
@@ -1559,17 +1427,6 @@ input[type="number"] {
   .settings-section {
     padding: 21px;
   }
-  .workflow-steps {
-    gap: 15px;
-    font-size: var(--text-xs);
-  }
-  .workflow-steps > span {
-    gap: 6px;
-  }
-  .workflow-steps i {
-    width: 20px;
-    height: 20px;
-  }
   .setting-fields {
     padding: 0 17px;
   }
@@ -1599,15 +1456,6 @@ input[type="number"] {
   .setting-input > div > span {
     right: 7px;
     font-size: var(--text-xs);
-  }
-  .draft-bar {
-    bottom: 8px;
-    padding: 13px;
-    gap: 10px;
-  }
-  .draft-bar button {
-    flex: 1;
-    font-size: 12px;
   }
   .theme-options button {
     min-width: 0;
