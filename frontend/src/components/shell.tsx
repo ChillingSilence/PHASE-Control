@@ -15,7 +15,7 @@ import { BrandGlyph } from "@/components/brand-glyph";
 import { DayDial, phaseColor } from "@/components/day-dial";
 import { time } from "@/components/dashboard";
 import { ageText } from "@/lib/controller-health";
-import { roomStatus } from "@/lib/model";
+import { roomStatus, runningVersions } from "@/lib/model";
 import { MODE_WORDS, roomClock, roomMode, zoneColor } from "@/lib/room-mode";
 import type { Controller, Room } from "@/lib/types";
 import "./shell.css";
@@ -385,3 +385,26 @@ export function SectionHeader({
 }
 
 export { phaseColor };
+
+/** The versions the running integration and controller report, to quote in a problem report. Not in
+ * the demo, which runs neither. */
+export function RunningVersions({ controller }: { controller: Controller }) {
+  if (controller.demo) return null;
+  const versions = runningVersions(controller.states, controller.room.room);
+  return (
+    <dl
+      className="running-versions"
+      aria-label="Running versions"
+      title="Reported by the running integration and controller, not by this page"
+    >
+      <div>
+        <dt>Integration</dt>
+        <dd>{versions.integration ?? "not reported"}</dd>
+      </div>
+      <div>
+        <dt>Controller</dt>
+        <dd>{versions.controller ?? "not reported"}</dd>
+      </div>
+    </dl>
+  );
+}

@@ -373,6 +373,25 @@
 .phone-tabs {
   display: none;
 }
+.running-versions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  font-size: 13px;
+}
+.running-versions > div {
+  display: flex;
+  gap: 6px;
+}
+.running-versions dt {
+  color: var(--muted-foreground);
+}
+.running-versions dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
 
 /* A desktop with one room has no rooms column; a tablet has the chips instead. */
 @media (max-width: 1279px) {

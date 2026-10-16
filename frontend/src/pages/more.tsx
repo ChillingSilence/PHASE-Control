@@ -1,7 +1,6 @@
 import { ChevronRight, CircleHelp, Compass, House, Menu, Settings2 } from "lucide-react";
 import { EventList, type Page } from "@/components/dashboard";
-import { LiveStatus } from "@/components/shell";
-import { runningVersions } from "@/lib/model";
+import { LiveStatus, RunningVersions } from "@/components/shell";
 import type { Controller } from "@/lib/types";
 import "./more.css";
 
@@ -17,7 +16,6 @@ export function More({
   startTour: () => void;
   haMenu: (() => void) | null;
 }) {
-  const versions = runningVersions(controller.states, controller.room.room);
   const row = (label: string, note: string, Icon: typeof House, act: () => void) => (
     <button type="button" className="more-row" onClick={act} key={label}>
       <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
@@ -56,12 +54,7 @@ export function More({
       </section>
       <p className="more-foot">
         <LiveStatus controller={controller} />
-        {!controller.demo && (
-          <span>
-            Integration {versions.integration ?? "not reported"} · Controller app{" "}
-            {versions.controller ?? "not reported"}
-          </span>
-        )}
+        <RunningVersions controller={controller} />
       </p>
     </div>
   );
