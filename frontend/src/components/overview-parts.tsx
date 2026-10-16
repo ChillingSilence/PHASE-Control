@@ -558,7 +558,7 @@ export function comingUp(lanes: Lane[], day: GrowDay, now: number): Upcoming[] {
     items.push({
       time: day.lightsOff,
       who: "Room",
-      color: "var(--lights-off)",
+      color: "var(--foreground)",
       text: "Lights off",
     });
   return items.sort((a, b) => a.time - b.time);

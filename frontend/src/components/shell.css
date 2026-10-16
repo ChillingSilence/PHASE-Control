@@ -419,7 +419,8 @@
     font-size: 22px;
   }
   /* The live status, refresh and recent activity are under More on a phone. */
-  .section-header .page-utilities {
+  .section-header .page-utilities,
+  .section-header-gap {
     display: none;
   }
   .phone-tabs {
