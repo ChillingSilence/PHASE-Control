@@ -210,9 +210,16 @@ export function ReservoirSummary({
         </span>
         {line.length > 0 && <span className="reservoir-line">{line.join(" · ")}</span>}
       </div>
-      <button type="button" className="link-button" onClick={open}>
-        Feed
-      </button>
+      {/* The reservoir's own page once it has one; a room with only a pump maps the rest first. */}
+      {tank.level.entityId || refill ? (
+        <button type="button" className="link-button" onClick={open}>
+          Feed
+        </button>
+      ) : (
+        <button type="button" className="link-button" onClick={configure}>
+          Map sensors
+        </button>
+      )}
     </section>
   );
 }
