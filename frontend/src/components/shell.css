@@ -399,7 +399,8 @@
   .section-title {
     font-size: 22px;
   }
-  .section-header .live-status {
+  /* The live status, refresh and recent activity are under More on a phone. */
+  .section-header .page-utilities {
     display: none;
   }
   .phone-tabs {

@@ -29,7 +29,8 @@ import { nextText, type Lane } from "@/components/day-timeline";
 import { ageText } from "@/lib/controller-health";
 import type { DrybackTrend } from "@/lib/dryback";
 import type { GrowDay } from "@/lib/day-timeline";
-import { resolve, roomStatus } from "@/lib/model";
+import { roomStatus } from "@/lib/model";
+import { scheduleDays } from "@/components/targets-banner";
 import { MODE_WORDS, modeChanges, roomMode, zoneColor, type RoomMode } from "@/lib/room-mode";
 import type { Controller, Notice, Zone } from "@/lib/types";
 import { dailyWater } from "@/lib/water-delivery";
@@ -202,21 +203,7 @@ export function TargetsSource({
         Today’s targets
       </button>
     );
-  const zones = resolve(controller.states, controller.room.room, "sensor", "strategy_plan")
-    ?.attributes.zones;
-  const days = [
-    ...new Set(
-      (Array.isArray(zones) ? zones : [])
-        .map((zone) => zone as { day?: unknown; status?: unknown })
-        .filter((zone) => zone.status === "active" && typeof zone.day === "number")
-        .map((zone) => zone.day as number),
-    ),
-  ].sort((a, b) => a - b);
-  const day = !days.length
-    ? ""
-    : days.length === 1
-      ? ` · day ${days[0]}`
-      : ` · days ${days[0]}–${days.at(-1)}`;
+  const day = scheduleDays(controller);
   return (
     <button
       type="button"
@@ -226,7 +213,7 @@ export function TargetsSource({
       onClick={() => navigate("grow-plan")}
     >
       <CalendarRange size={15} aria-hidden="true" />
-      Schedule in charge{day}
+      Schedule in charge{day ? ` · ${day}` : ""}
     </button>
   );
 }
