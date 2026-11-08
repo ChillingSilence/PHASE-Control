@@ -8,7 +8,7 @@ integration's sensor mirrors it, is not polled, and writes only when what it sho
 
 from datetime import datetime, timedelta
 
-from pytest_homeassistant_custom_component.common import async_fire_time_changed
+from ha_testing import async_fire_time_changed
 
 from test_setup_entry import _install
 

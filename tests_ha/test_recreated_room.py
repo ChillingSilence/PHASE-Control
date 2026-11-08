@@ -19,10 +19,7 @@ import pytest
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import State
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import (
-    MockConfigEntry,
-    mock_restore_cache,
-)
+from ha_testing import MockConfigEntry, mock_restore_cache
 from conftest import fixture
 from test_setup_entry import _install
 

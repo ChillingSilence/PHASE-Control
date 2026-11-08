@@ -177,6 +177,14 @@ jobs:
             homeassistant: '2026.5.0'
             install: 'pytest-homeassistant-custom-component==0.13.329'
             suffix: ' - oldest supported Home Assistant'
+          # The newest Home Assistant: everyone who installs from the Marketplace, which came with
+          # 2026.11, runs at least that. From 2026.11 Home Assistant publishes its own plugin,
+          # pytest-homeassistant, versioned like Home Assistant itself; the one the legs above
+          # install stopped at 2026.10 (tests_ha/ha_testing.py).
+          - python: '3.14'
+            homeassistant: '2026.11.0'
+            install: 'pytest-homeassistant==2026.11.0'
+            suffix: ' - newest Home Assistant'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
