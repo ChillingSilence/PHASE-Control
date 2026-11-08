@@ -511,8 +511,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 def _installed_version() -> str | None:
-    """The version in manifest.json ON DISK, which is what HACS last downloaded. Blocking: call
-    it in the executor. None when it cannot be read, which never stops anybody."""
+    """The version in manifest.json ON DISK, what the Marketplace or HACS last downloaded.
+    Blocking: call it in the executor. None when it cannot be read, which never stops anybody.
+    """
     try:
         manifest = json.loads(
             (Path(__file__).parent / "manifest.json").read_text(encoding="utf-8")
@@ -524,7 +525,7 @@ def _installed_version() -> str | None:
 
 
 async def _versions(hass) -> tuple[str, str | None]:
-    """(running, waiting). `running` is the code Home Assistant loaded when it started; HACS
+    """(running, waiting). `running` is the code Home Assistant loaded when it started; an update
     replaces the files and Home Assistant goes on running the old ones until it restarts.
     `waiting` is the version on disk when it differs, else None.
 
@@ -543,7 +544,7 @@ def _restart_notice(running: str, waiting: str | None) -> str:
         return ""
     return (
         f"⚠️ Home Assistant is still running {running}, but {waiting} is installed. Restart "
-        "Home Assistant to run it: an update downloaded by HACS does nothing until then."
+        "Home Assistant to run it: a downloaded update does nothing until then."
     )
 
 
