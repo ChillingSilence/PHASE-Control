@@ -23,7 +23,7 @@ it was released here first, byte for byte.
 
 | Half | Delivered by | What offers an update |
 | --- | --- | --- |
-| Integration (`custom_components/`) | HACS | A **GitHub release** on the repository the box added. |
+| Integration (`custom_components/`) | The Marketplace (HACS before Home Assistant 2026.11) | A **GitHub release** on the repository the box added. |
 | Controller (`addons/f2_control/`) | Supervisor's app store | A new `version:` in `addons/f2_control/config.yaml` on the branch the box tracks. `config.yaml` has no `image:`, so Supervisor builds the controller on the box from that branch. |
 
 What follows from that (checked against the Supervisor source):
@@ -45,6 +45,12 @@ What follows from that (checked against the Supervisor source):
   the meantime (a fresh install, a Rebuild, or an update to the last release taken late) builds
   `main` as it is then, under the last released number. So merge close to releasing. The public
   repository's `main` only ever moves to a released commit.
+
+How soon a box sees a new integration release depends on how it added this repository. Added from
+a link, as a custom repository, its Marketplace looks for releases every 48 hours, and only while
+a GitHub account is connected to it. Once the catalog (hacs/default) lists the repository, the
+catalog takes a release up within 4 hours and the Marketplace reads the catalog every 6 hours,
+with no GitHub account needed.
 
 ## Writing the notes
 
@@ -86,10 +92,11 @@ it:
 5. publishes the GitHub release, its notes the changelog entry up to its technical notes, linking to
    those at the tag.
 
-The rooms that track this repository are then offered the pair: HACS offers the integration and
-Supervisor the controller. Update them, confirm the versions and a current controller heartbeat,
-and watch a grow-day. If the push went through but publishing the release did not (a network error,
-an expired login), run the same command again: it publishes the release for the tag and stops.
+The rooms that track this repository are then offered the pair: the Marketplace (or HACS) offers the
+integration and Supervisor the controller. Update them, confirm the versions and a current
+controller heartbeat, and watch a grow-day. If the push went through but publishing the release did
+not (a network error, an expired login), run the same command again: it publishes the release for
+the tag and stops.
 
 ## Releasing it for everyone
 
