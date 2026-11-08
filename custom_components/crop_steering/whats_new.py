@@ -1,8 +1,9 @@
 """What's new: the release highlights the dashboard shows once after an update.
 
 The highlights are WHATS_NEW.md, beside this file: each change adds its line under Unreleased, and
-scripts/release.py dates them as the release. HACS installs it with the integration, and the
-dashboard reads it from here, not from its own bundle, which a release does not rebuild.
+scripts/release.py dates them as the release. The Marketplace, or HACS before Home Assistant
+2026.11, installs it with the integration, and the dashboard reads it from here, not from its own
+bundle, which a release does not rebuild.
 
 Which release the window last showed is kept for the whole installation, not per browser or per
 person, so it shows once, to the first person who opens the dashboard after an update. A new

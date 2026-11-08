@@ -211,7 +211,7 @@
       "already_configured": "PHASE Control is already configured.",
       "setup_invalid": "Setup could not be saved: {error}",
       "reserved_room_name": "Default is reserved for the original room. Choose another room name.",
-      "restart_required": "Home Assistant is still running PHASE Control {running}, but {installed} is installed. HACS replaces the files; Home Assistant goes on running the old code until it restarts. Restart Home Assistant, then add PHASE Control again. Nothing was set up."
+      "restart_required": "Home Assistant is still running PHASE Control {running}, but {installed} is installed. An update replaces the files; Home Assistant goes on running the old code until it restarts. Restart Home Assistant, then add PHASE Control again. Nothing was set up."
     }
   },
   "options": {

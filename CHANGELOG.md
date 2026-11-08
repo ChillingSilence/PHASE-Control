@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Control passed every test there as it is: nothing needed changing.
 - **Listed under Garden & plants.** PHASE Control now says what it is for in the catalog that the
   Marketplace of Home Assistant 2026.11 reads.
+- **Update messages without HACS.** The message that a downloaded update needs Home Assistant
+  restarted no longer names HACS, which the Marketplace replaced in Home Assistant 2026.11.
 
 ### 🔧 Technical notes
 
@@ -45,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   action gave, "The integration manifest has no categories", and the catalog publishes it for the
   Marketplace. Older Home Assistant ignores the key: `tests_ha` passes on 2026.5.0, 2026.9.3 and
   2026.11.0 with it. `tests/test_hacs_ready.py` holds the category.
+- Integration: the config flow's `restart_required` abort says "An update replaces the files", and
+  the Configure notice "a downloaded update", where both named HACS. The docstrings of
+  `config_flow.py` and `whats_new.py` name the Marketplace beside HACS.
 
 ## [1.6.5] - 2026-11-05
 
