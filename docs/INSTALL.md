@@ -9,12 +9,12 @@
 | PHASE Control integration  | Home Assistant custom integration                                   | Room/zone configuration, entities, stored strategies, reviewed APIs and the native sidebar workspace.                                       |
 | PHASE Controller app       | A Home Assistant app (Settings → Apps)                              | Reads the configuration and sensors, makes irrigation decisions and sequences equipment.                                               |
 
-Install the integration and controller together. HACS, the integration's setup and Settings → Apps are separate steps. The guided links open those screens; they cannot pair devices, prove flow or bypass HA confirmations.
+Install the integration and controller together. The Marketplace (HACS before Home Assistant 2026.11), the integration's setup and Settings → Apps are separate steps. The guided links open those screens; they cannot pair devices, prove flow or bypass HA confirmations.
 
 ## Requirements
 
 - Home Assistant OS, running Home Assistant 2026.5 or newer.
-- HACS for the guided integration download, or access to copy a custom integration manually.
+- For the guided integration download, the Marketplace (Settings → Marketplace), built into Home Assistant 2026.11 and newer, or HACS on an older Home Assistant. Otherwise, access to copy a custom integration manually.
 - The controller app installs from Settings → Apps. It is built for amd64 or aarch64 (64-bit only) and brings its own Python 3.12.
 - An HA administrator account for Settings → Rooms & hardware and its configuration services.
 - Existing HA entities for the actual pump and zone valves, fresh VWC/EC probes and any configured interlocks. This integration maps entities; it does not provision sensor firmware or pair devices.
@@ -23,7 +23,7 @@ Install the integration and the controller app at the same version: both carry o
 
 ## Guided installation
 
-1. [Open this repository in HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=Chill-Division&repository=PHASE-Control&category=integration). Download the integration and restart HA. If HACS is absent, install HACS first or use the manual path below.
+1. [Open this repository in the Marketplace](https://my.home-assistant.io/redirect/hacs_repository/?owner=Chill-Division&repository=PHASE-Control&category=integration): on Home Assistant 2026.11 or newer the link opens Settings → Marketplace, and before that HACS. Until the Marketplace's catalog lists PHASE Control, the link adds this repository as a custom repository, which needs a GitHub account connected to the Marketplace (it asks once). Download the integration. With HACS, restart HA before step 2; the Marketplace needs no restart for a first install. On a Home Assistant older than 2026.11 without HACS, install HACS first or use the manual path below.
 2. [Start the PHASE Control config flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=crop_steering). Name the room, say how many zones it has and how it is plumbed, then pick each zone's valve and its substrate probes (moisture and EC), or, where one valve waters every zone, that valve once and each zone's probes. Last come the pump and main line the plumbing has, and when the lights come on and go off. That is all it asks: each zone's name, plant count, pot size and drippers are set in **Settings → Rooms & hardware** (step 5), and the lights hours can change later on **Irrigation strategy → Today**. Watering stays off until you switch it on.
 3. [Add the app repository](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FChill-Division%2FPHASE-Control). In **Settings → Apps**, install **PHASE Controller**. Keep the affected engine enable flags OFF, review the app options, then start the app so it can publish its heartbeat and discover configuration. From then on it starts with the host (**Start on boot** is on unless you turn it off); turn on **Watchdog** as well, so Supervisor restarts it if it stops. Supervisor supplies the internal HA token; do not paste a token into a repository file.
 4. Open **PHASE Control** in the HA sidebar. The integration serves its bundled dashboard automatically; no manual dashboard YAML or custom Lovelace card installation is required. The controller's ingress can also serve the same dashboard. In supported HA shells, use **Home Assistant** at the bottom of the workspace's menu (under ☰ on a phone) to reopen the temporarily collapsed HA sidebar; see [sidebar behavior](HA_SIDEBAR.md).
@@ -62,11 +62,11 @@ Update an existing controller in place from this repository. A controller instal
 1. Back up HA, the controller's persistent data and existing setpoints. Export irrigation strategies if available. Record which engines are enabled.
 2. Turn the affected engines off and wait for the pump, mainline and valves to be OFF. Stop the existing controller while replacing software.
 3. Refresh your existing app repository and update that controller in place to the release's version. A restart alone does not rebuild an old image. Do not install a second copy. The controller starts with the host unless its **Start on boot** was turned off, so a host restart during the upgrade starts it; with the engines off (step 2) it waters nothing.
-4. Download the same version of the integration through HACS and restart HA. Confirm every PHASE Control room finishes loading.
+4. Download the same version of the integration, from Settings → Updates (the Marketplace, or HACS before Home Assistant 2026.11), and restart HA. Confirm every PHASE Control room finishes loading.
 5. Start the controller with engines still off. Verify its version, fresh heartbeat, both room descriptors, sensor readings, setup acknowledgement and strategy capability. Compare current setpoints and pot/dripper sizing with the backup.
 6. Restore the engines' previous enabled states after these checks. An upgrade does not require arming a strategy or replacing existing values with defaults.
 
-If an update is missing from Settings → Apps, refresh the repository information there first. Use Update for published versions or Rebuild for a local source installation. HACS and Settings → Apps update separate components.
+If an update is missing from Settings → Apps, refresh the repository information there first. Use Update for published versions or Rebuild for a local source installation. The Marketplace (or HACS) and Settings → Apps update separate components.
 
 ### Moving a controller installed from another repository
 

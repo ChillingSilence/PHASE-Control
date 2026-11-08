@@ -44,8 +44,8 @@ More in the [screenshots](https://github.com/Chill-Division/PHASE-Control/blob/m
 | | |
 | --- | --- |
 | **Home Assistant** | **2026.5.0 or newer.** Every change is tested on 2026.5.0, 2026.9.3 and 2026.11.0. |
-| **The controller app** | Home Assistant OS. The controller installs from Settings → Apps; HACS installs the integration. |
-| **HACS** | 1.6.0 or newer for the guided download, or copy `custom_components/crop_steering` into Home Assistant by hand. |
+| **The controller app** | Home Assistant OS. The controller installs from Settings → Apps; the Marketplace, or HACS, installs the integration. |
+| **Marketplace or HACS** | The Marketplace, built into Home Assistant 2026.11 and newer; before that, HACS 1.6.0 or newer for the guided download. Or copy `custom_components/crop_steering` into Home Assistant by hand. |
 | **Hardware** | A smart switch that Home Assistant can control for irrigation (a pump, a valve, whatever you have) and a moisture probe to steer from. Several substrate sensors are ideal. |
 
 ## Install
@@ -56,15 +56,15 @@ PHASE Control comes in two parts, and watering needs both: the **integration** k
 | --- | --- |
 | [![How to install PHASE Control, a video on YouTube](https://i.ytimg.com/vi/Lor93_c-ibU/hqdefault.jpg)](https://www.youtube.com/watch?v=Lor93_c-ibU) | [![How to upgrade PHASE Control, a video on YouTube](https://i.ytimg.com/vi/pDjWWWM_XBQ/hqdefault.jpg)](https://www.youtube.com/watch?v=pDjWWWM_XBQ) |
 
-1. **Download the integration with HACS**, then restart Home Assistant.
-   [![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Chill-Division&repository=PHASE-Control&category=integration)
+1. **Download the integration** from the Marketplace (Settings → Marketplace) on Home Assistant 2026.11 or newer, or with HACS before that. With HACS, restart Home Assistant afterwards; the Marketplace needs no restart the first time. Until the Marketplace lists PHASE Control, this link adds it from GitHub, which asks you to connect a GitHub account once.
+   [![Open your Home Assistant instance and open this repository in the Marketplace, or in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Chill-Division&repository=PHASE-Control&category=integration)
 2. **Add PHASE Control** and name your first room.
    [![Open your Home Assistant instance and start setting up PHASE Control.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=crop_steering)
 3. **Add the controller app's repository**, then install and start **PHASE Controller**.
    [![Open your Home Assistant instance and add this app repository.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FChill-Division%2FPHASE-Control)
 4. **Open PHASE Control in the sidebar.** Map your valves, pump and probes in **Settings, Rooms & hardware**, check the readings on the **Overview**, and keep watering switched off until everything reads correctly.
 
-**Updating:** both parts carry one version number; update them together. Update the integration in HACS and restart Home Assistant, then press **Update** on the controller app (restarting it alone keeps the old version). Updates keep your rooms, settings, strategies and history. The [install guide](https://github.com/Chill-Division/PHASE-Control/blob/main/docs/INSTALL.md) covers manual installs, upgrades and rolling back.
+**Updating:** both parts carry one version number; update them together. Update the integration (Settings → Updates, from the Marketplace or HACS) and restart Home Assistant, then press **Update** on the controller app (restarting it alone keeps the old version). Updates keep your rooms, settings, strategies and history. The [install guide](https://github.com/Chill-Division/PHASE-Control/blob/main/docs/INSTALL.md) covers manual installs, upgrades and rolling back.
 
 ## Documentation
 

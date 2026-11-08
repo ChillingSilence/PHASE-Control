@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Marketplace of Home Assistant 2026.11 reads.
 - **Update messages without HACS.** The message that a downloaded update needs Home Assistant
   restarted no longer names HACS, which the Marketplace replaced in Home Assistant 2026.11.
+- **Installing from the Marketplace.** The README and the install guide say how to install and
+  update PHASE Control on Home Assistant 2026.11 or newer, where the Marketplace replaces HACS: from
+  Settings → Marketplace, through the same link as before. Until the Marketplace lists PHASE
+  Control, that link adds it from GitHub, which asks you to connect a GitHub account once.
 
 ### 🔧 Technical notes
 
@@ -50,6 +54,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration: the config flow's `restart_required` abort says "An update replaces the files", and
   the Configure notice "a downloaded update", where both named HACS. The docstrings of
   `config_flow.py` and `whats_new.py` name the Marketplace beside HACS.
+- Docs: the README (What you need, Install step 1, Updating), `docs/INSTALL.md` (requirements,
+  guided installation, upgrading), `docs/troubleshooting.md` and `docs/RELEASING.md` name the
+  Marketplace beside HACS. The `hacs_repository` My link stays: it opens HACS before Home Assistant
+  2026.11 and the Marketplace from then on. `docs/RELEASING.md` says how soon a box sees a release:
+  from a link, every 48 hours and only with a GitHub account connected; once the catalog lists the
+  repository, within the catalog's 4 hours and the Marketplace's 6.
 
 ## [1.6.5] - 2026-11-05
 
