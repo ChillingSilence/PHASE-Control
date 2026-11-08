@@ -1,3 +1,7 @@
+# 1.6.6
+
+Pair with integration 1.6.6.
+
 # 1.6.5
 
 Pair with integration 1.6.5.
