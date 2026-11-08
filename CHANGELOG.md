@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Tested on Home Assistant 2026.11.** Every change is now also tested in a real Home Assistant
   2026.11.0, the release that brought the Marketplace, as well as on 2026.5.0 and 2026.9.3. PHASE
   Control passed every test there as it is: nothing needed changing.
+- **Listed under Garden & plants.** PHASE Control now says what it is for in the catalog that the
+  Marketplace of Home Assistant 2026.11 reads.
 
 ### 🔧 Technical notes
 
@@ -38,6 +40,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `tests_ha/pytest.ini` turns respx's pytest plugin off: it loads `httpx` before Home Assistant can
   put `httpx2` in its place. All 240 tests pass on 2026.11.0, 2026.9.3 and 2026.5.0, and on
   2026.11.0 Home Assistant logs no deprecation for the integration.
+- Integration: `manifest.json` lists `"categories": ["garden_plants"]`, the integration category for
+  irrigation, plant sensors, hydroponics and greenhouses. That clears the one warning the HACS
+  action gave, "The integration manifest has no categories", and the catalog publishes it for the
+  Marketplace. Older Home Assistant ignores the key: `tests_ha` passes on 2026.5.0, 2026.9.3 and
+  2026.11.0 with it. `tests/test_hacs_ready.py` holds the category.
 
 ## [1.6.5] - 2026-11-05
 

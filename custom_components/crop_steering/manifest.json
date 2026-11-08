@@ -1,6 +1,9 @@
 {
   "domain": "crop_steering",
   "name": "PHASE Control",
+  "categories": [
+    "garden_plants"
+  ],
   "codeowners": [
     "@Chill-Division"
   ],
