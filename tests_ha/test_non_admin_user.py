@@ -13,7 +13,7 @@ from homeassistant.components import frontend
 from homeassistant.core import Context, SupportsResponse
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.setup import async_setup_component
-from pytest_homeassistant_custom_component.common import MockUser
+from ha_testing import MockUser
 from test_setup_entry import _install
 
 DOMAIN = "crop_steering"

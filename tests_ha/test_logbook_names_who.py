@@ -14,9 +14,7 @@ from homeassistant.auth.const import GROUP_ID_ADMIN
 from homeassistant.core import Context
 from homeassistant.setup import async_setup_component
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.components.recorder.common import (
-    async_wait_recording_done,
-)
+from ha_testing import async_wait_recording_done
 
 from test_setup_entry import _install
 

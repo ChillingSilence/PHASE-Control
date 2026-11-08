@@ -21,7 +21,7 @@ from pathlib import Path
 import pytest
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
-from pytest_homeassistant_custom_component.common import async_fire_time_changed
+from ha_testing import async_fire_time_changed
 
 from custom_components.crop_steering import health
 from test_real_flow import VALVE

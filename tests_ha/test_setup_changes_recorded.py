@@ -17,9 +17,7 @@ from homeassistant.core import Context
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.setup import async_setup_component
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.components.recorder.common import (
-    async_wait_recording_done,
-)
+from ha_testing import async_wait_recording_done
 
 from custom_components.crop_steering.setup_api import LOGBOOK_ENTRY
 from test_setup_entry import _install

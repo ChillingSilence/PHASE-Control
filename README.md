@@ -43,7 +43,7 @@ More in the [screenshots](https://github.com/Chill-Division/PHASE-Control/blob/m
 
 | | |
 | --- | --- |
-| **Home Assistant** | **2026.5.0 or newer.** Every change is tested on 2026.5.0 and on 2026.9.3. |
+| **Home Assistant** | **2026.5.0 or newer.** Every change is tested on 2026.5.0, 2026.9.3 and 2026.11.0. |
 | **The controller app** | Home Assistant OS. The controller installs from Settings → Apps; HACS installs the integration. |
 | **HACS** | 1.6.0 or newer for the guided download, or copy `custom_components/crop_steering` into Home Assistant by hand. |
 | **Hardware** | A smart switch that Home Assistant can control for irrigation (a pump, a valve, whatever you have) and a moisture probe to steer from. Several substrate sensors are ideal. |

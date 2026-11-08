@@ -1,4 +1,4 @@
-"""Tests that run inside a REAL Home Assistant (pytest-homeassistant-custom-component).
+"""Tests that run inside a REAL Home Assistant, which a pytest plugin brings (ha_testing.py).
 
 Everything under tests/ drives the integration against hand-written stubs. That is fast, and it is
 also how 2.17.0 shipped two switches whose entity ids Home Assistant generated from their labels:
@@ -25,6 +25,17 @@ import pytest
 _OURS = str(Path(__file__).resolve().parents[1] / "custom_components")
 if _OURS not in custom_components.__path__:
     custom_components.__path__.append(_OURS)
+
+
+@pytest.fixture
+def hass_config_dir(hass_tmp_config_dir: str) -> str:
+    """Each test's Home Assistant gets a configuration directory of its own, outside the repository.
+
+    Home Assistant writes into it: 2026.11 copies its default blueprints there. The plugin's own
+    choice is one shared directory, which pytest-homeassistant puts at tests/testing_config under the
+    project root: inside this repository.
+    """
+    return hass_tmp_config_dir
 
 
 @pytest.fixture(autouse=True)

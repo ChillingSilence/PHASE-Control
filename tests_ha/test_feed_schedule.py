@@ -8,7 +8,7 @@ stored before the schedule loads in place with none.
 from datetime import datetime
 
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import async_fire_time_changed
+from ha_testing import async_fire_time_changed
 from test_feed_batches import FLOWER, PLAN, STAGE
 from test_setup_entry import _install
 from test_setup_save_plumbing import _service

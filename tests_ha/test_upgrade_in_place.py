@@ -18,10 +18,7 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import State
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
-from pytest_homeassistant_custom_component.common import (
-    MockConfigEntry,
-    mock_restore_cache,
-)
+from ha_testing import MockConfigEntry, mock_restore_cache
 
 DOMAIN = "crop_steering"
 KILL = "switch.crop_steering_engine_enabled"
