@@ -12,20 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- **A steadier Overview check.** The browser check that Coming up is as tall as the clock beside it
-  no longer fails now and then, when the clock was still taking its size as the Overview opened. It
-  measures the two at the same moment, once they hold still.
-- **Tested on Home Assistant 2026.11.** Every change is now also tested in a real Home Assistant
-  2026.11.0, the release that brought the Marketplace, as well as on 2026.5.0 and 2026.9.3. PHASE
-  Control passed every test there as it is: nothing needed changing.
-- **Listed under Garden & plants.** PHASE Control now says what it is for in the catalog that the
-  Marketplace of Home Assistant 2026.11 reads.
-- **Update messages without HACS.** The message that a downloaded update needs Home Assistant
-  restarted no longer names HACS, which the Marketplace replaced in Home Assistant 2026.11.
-- **Installing from the Marketplace.** The README and the install guide say how to install and
-  update PHASE Control on Home Assistant 2026.11 or newer, where the Marketplace replaces HACS: from
-  Settings → Marketplace, through the same link as before. Until the Marketplace lists PHASE
-  Control, that link adds it from GitHub, which asks you to connect a GitHub account once.
+- **Ready for Home Assistant 2026.11 and its Marketplace.** PHASE Control is now tested on Home
+  Assistant 2026.11, where the Marketplace replaced HACS, and the README and the install guide say
+  how to install and update it from there. The restart message after an update no longer names HACS,
+  and PHASE Control now gives Garden & plants as its category.
+- Bug fixes and improvements.
 
 ### 🔧 Technical notes
 
