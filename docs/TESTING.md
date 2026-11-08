@@ -45,16 +45,29 @@ entities registered as `sensor.engine_config` that the controller never looks fo
 panel that raised `AttributeError` on every Home Assistant older than 2026.5 (the stub test
 assigned the missing function onto its own stub).
 
-`tests_ha/` loads the integration in an actual Home Assistant core
-([pytest-homeassistant-custom-component](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component)):
-real config entries, entity registry, restore state, schema validation and serialisation.
+`tests_ha/` loads the integration in an actual Home Assistant core: real config entries, entity
+registry, restore state, schema validation and serialisation. A pytest plugin brings that Home
+Assistant: [pytest-homeassistant-custom-component](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component)
+up to Home Assistant 2026.10, and from 2026.11 Home Assistant's own
+[pytest-homeassistant](https://github.com/home-assistant/core/tree/dev/packages/pytest-homeassistant).
+The tests take Home Assistant's helpers (`MockConfigEntry`, `async_fire_time_changed` and the rest)
+from `tests_ha/ha_testing.py`, which imports them from whichever of the two is installed. Never
+install both in one virtualenv: they bring the same fixtures.
 
 ```bash
 # Python 3.14.2+ (Home Assistant 2026.9 needs it). A separate virtualenv keeps the lean
 # prerequisites above lean.
 pip install -r requirements-test-ha.txt
 python -m pytest tests_ha -q          # NOT with PYTEST_DISABLE_PLUGIN_AUTOLOAD
+
+# The newest Home Assistant, in a virtualenv of its own:
+pip install pytest-homeassistant==2026.11.0
+python -m pytest tests_ha -q
 ```
+
+`tests_ha/pytest.ini` turns respx's pytest plugin off (`-p no:respx`). From 2026.11 Home Assistant
+puts `httpx2` in place of `httpx` as it is imported, and refuses when `httpx` is already loaded,
+which that plugin does first. respx itself still works.
 
 `bash tests/run_ci.sh` runs it too when the package is installed (set `HA_PYTHON` to point at a
 separate virtualenv). When it is not, the run ends `PARTIAL: real Home Assistant tier skipped` and
@@ -91,18 +104,18 @@ websocket, as the dashboard does, and reads the refusal the page shows.
 ### Which Home Assistant
 
 CI runs this tier once for each Home Assistant the repository vouches for: a matrix in the Real
-Home Assistant job of `.github/workflows/ci-validate.yml`. Each leg pins the
-pytest-homeassistant-custom-component release that brings exactly one Home Assistant, then fails
-unless `homeassistant.const.__version__` is that version, so an install that quietly resolves to
-something else cannot pass.
+Home Assistant job of `.github/workflows/ci-validate.yml`. Each leg pins the plugin release that
+brings exactly one Home Assistant, then fails unless `homeassistant.const.__version__` is that
+version, so an install that quietly resolves to something else cannot pass.
 
 | Leg (check name) | Python | Plugin release | Home Assistant | What it proves |
 | --- | --- | --- | --- | --- |
-| Production: `Real Home Assistant (setup wizard and entity ids)` | 3.14 | 0.13.366, from `requirements-test-ha.txt` | 2026.9.3 | What production runs. Branch protection may require this check on `main`. |
-| Oldest supported: the same name followed by ` - oldest supported Home Assistant` | 3.14 | 0.13.329 | 2026.5.0 | The minimum in `hacs.json`, the controller app's `config.yaml`, the README badge and [INSTALL.md](INSTALL.md). |
+| Production: `Real Home Assistant (setup wizard and entity ids)` | 3.14 | pytest-homeassistant-custom-component 0.13.366, from `requirements-test-ha.txt` | 2026.9.3 | What production runs. Branch protection may require this check on `main`. |
+| Oldest supported: the same name followed by ` - oldest supported Home Assistant` | 3.14 | pytest-homeassistant-custom-component 0.13.329 | 2026.5.0 | The minimum in `hacs.json`, the controller app's `config.yaml`, the README badge and [INSTALL.md](INSTALL.md). |
+| Newest: the same name followed by ` - newest Home Assistant` | 3.14 | pytest-homeassistant 2026.11.0 | 2026.11.0 | What everyone who installs from the Marketplace runs: it came with Home Assistant 2026.11. |
 
 The Python requirement follows Home Assistant: 2026.9 needs Python 3.14.2 or newer, and no plugin
-release for 2026.3 or later installs on an older Python, so both legs run 3.14. Before the matrix the
+release for 2026.3 or later installs on an older Python, so every leg runs 3.14. Before the matrix the
 job ran Python 3.13 with the plugin unpinned, so pip settled, without a word, on the newest release
 that still installed there, and CI tested Home Assistant 2026.2.3 while production ran 2026.9.
 
@@ -120,6 +133,11 @@ Moving a leg:
   `frontend.async_panel_exists`, which Home Assistant added in 2026.5.0. The minimum was once
   2024.10.0, which took a Python 3.12 leg and pins on `josepy` and `pycares`; none are needed
   from 2026.5.0.
+- **Newest.** Set the leg's `homeassistant` and its `pytest-homeassistant==` pin to the same new
+  version: that package is numbered like Home Assistant. pytest-homeassistant-custom-component has
+  no release past 2026.10.4, and its releases do not load on 2026.11, so every leg from 2026.11 on
+  uses pytest-homeassistant. Once the oldest supported Home Assistant is 2026.11 or later, every
+  leg can, and `tests_ha/ha_testing.py` can go.
 
 ### hassfest, without Docker
 

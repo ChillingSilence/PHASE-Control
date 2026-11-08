@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **A steadier Overview check.** The browser check that Coming up is as tall as the clock beside it
   no longer fails now and then, when the clock was still taking its size as the Overview opened. It
   measures the two at the same moment, once they hold still.
+- **Tested on Home Assistant 2026.11.** Every change is now also tested in a real Home Assistant
+  2026.11.0, the release that brought the Marketplace, as well as on 2026.5.0 and 2026.9.3. PHASE
+  Control passed every test there as it is: nothing needed changing.
 
 ### 🔧 Technical notes
 
@@ -26,6 +29,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   failed pull request #194's run and the public repository's Validate on the v1.6.5 release commit.
   With the redraw forced between the two reads, the old read failed 9 runs of 40, at 434 px against
   454, and the new one none.
+- Tests: a third leg of the Real Home Assistant job, ` - newest Home Assistant`, runs `tests_ha` on
+  Home Assistant 2026.11.0 with `pytest-homeassistant==2026.11.0`, the plugin Home Assistant
+  publishes itself from 2026.11. pytest-homeassistant-custom-component stopped at 2026.10.4, and its
+  releases do not load on 2026.11 (its `common.py` imports `_clear_logger_overwrites`, which the
+  logger component no longer has). The tests import Home Assistant's helpers from
+  `tests_ha/ha_testing.py`, which takes them from whichever plugin is installed, and
+  `tests_ha/pytest.ini` turns respx's pytest plugin off: it loads `httpx` before Home Assistant can
+  put `httpx2` in its place. All 240 tests pass on 2026.11.0, 2026.9.3 and 2026.5.0, and on
+  2026.11.0 Home Assistant logs no deprecation for the integration.
 
 ## [1.6.5] - 2026-11-05
 
