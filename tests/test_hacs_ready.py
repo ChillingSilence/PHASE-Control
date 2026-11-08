@@ -1,10 +1,11 @@
-"""This repository stays eligible for the HACS default store.
+"""This repository stays eligible for the catalog the Marketplace and HACS list.
 
-HACS lists a repository only when its action passes with no ignores, the integration has brand
+Home Assistant 2026.11 built HACS in as the Marketplace, which reads the same catalog, hacs/default.
+It lists a repository only when the HACS action passes with no ignores, the integration has brand
 images (its own `brand/icon.png` is enough since hacs/integration#5128) or a home-assistant/brands
-entry, the manifest carries what HACS reads, and `hacs.json` names it
-(https://hacs.xyz/docs/publish/include). The action itself runs in CI; this catches a change that
-would quietly make it need an ignore again.
+entry, the manifest carries what the catalog reads, and `hacs.json` names it
+(https://contributors.home-assistant.io/marketplace/guides/catalog/). The action itself runs in CI;
+this catches a change that would quietly make it need an ignore again.
 """
 
 from __future__ import annotations
@@ -55,6 +56,15 @@ def test_the_manifest_has_every_key_hacs_reads():
     ):
         assert manifest.get(key), key
     assert manifest["domain"] == INTEGRATION.name
+
+
+def test_the_manifest_says_what_the_integration_is_for():
+    # Integration categories came with Home Assistant 2026.11; the catalog publishes them and the
+    # Marketplace browses by them. Without the key the HACS action warns, and it fails on a category
+    # it does not know. Garden & plants is "Irrigation, lawn mowers, plant sensors, hydroponics and
+    # greenhouses" (https://contributors.home-assistant.io/core/integrations/categories/).
+    manifest = json.loads((INTEGRATION / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest.get("categories") == ["garden_plants"]
 
 
 def test_hacs_json_names_the_integration():
