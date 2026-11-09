@@ -26,6 +26,9 @@ from .strategy_model import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+# Sent, with the entry id, at each publish: the room's Irrigation strategy sensor (sensor.py)
+# then writes the new snapshot.
+SIGNAL = f"{DOMAIN}_strategy_published"
 
 
 def _now():
@@ -79,6 +82,8 @@ class StrategyManager:
         self._lock = asyncio.Lock()
         self._unsubscribe = None
         self.document = self._fresh_document()
+        # The last snapshot published, (state, attributes); None before the first.
+        self.snapshot = None
         # Why the last tick could not move the plan on (a stale heartbeat or probe at lights-on,
         # Home Assistant down across it, an unreadable lights_on_hour). The plan keeps publishing
         # its last valid snapshot meanwhile and tries again every tick.
@@ -547,11 +552,15 @@ class StrategyManager:
         await self._persist()
 
     def _publish(self, now):
+        """Hand the room's Irrigation strategy sensor (sensor.py) a new snapshot. The sensor writes
+        it as sensor.crop_steering_<prefix>strategy_plan, which the controller app reads.
+        """
+        from homeassistant.helpers.dispatcher import async_dispatcher_send
+
         status = self.document["status"]
         active = self.document["active"]
         enabled = bool(active["zones"]) or status in ("active", "disarming", "error")
         attributes = {
-            "friendly_name": "Irrigation strategy",
             "room_id": self.room_id,
             "snapshot_version": 1,
             "revision": self.document["revision"],
@@ -569,7 +578,10 @@ class StrategyManager:
             "degraded_reason": self.degraded_reason,
             "status": status,
         }
-        self.hass.states.async_set(self.entity_id, status, attributes)
+        self.snapshot = (status, attributes)
+        async_dispatcher_send(
+            self.hass, f"{SIGNAL}_{self.entry.entry_id}", self.snapshot
+        )
 
 
 async def async_setup_strategy(hass, entry):

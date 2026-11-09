@@ -258,6 +258,24 @@ async def test_an_old_room_gains_a_test_shot_button_on_each_zones_device_never_p
     assert registry.async_get("button.crop_steering_zone_1_trigger_shot") is None
 
 
+@pytest.mark.parametrize(
+    "name", ["entry_2_17_wizard.json", "entry_2_18_one_switch_tent.json", "entry_env_era.json"]
+)
+async def test_an_old_room_gains_its_irrigation_strategy_as_an_entity_under_the_same_id(
+    hass, name
+):
+    """Up to 1.6.7 the strategy was a state written by hand, with no registry entry. Upgraded, the
+    room registers it under the id the controller app reads, on the room's device, never as _2."""
+    entry, _seed = await _upgrade(hass, name)
+    registry = er.async_get(hass)
+    item = registry.async_get("sensor.crop_steering_strategy_plan")
+    assert item.unique_id == f"{DOMAIN}_{entry.entry_id}_strategy_plan"
+    assert item.device_id == registry.async_get(DESCRIPTOR).device_id
+    assert registry.async_get("sensor.crop_steering_strategy_plan_2") is None
+    plan = hass.states.get("sensor.crop_steering_strategy_plan")
+    assert (plan.attributes["snapshot_version"], plan.attributes["room_id"]) == (1, "room:")
+
+
 # ------------------------------------------------------------------ an env-file era install
 async def test_an_env_era_install_with_only_front_and_back_probes_still_loads_and_fuses(
     hass,

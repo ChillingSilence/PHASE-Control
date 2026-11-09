@@ -221,6 +221,8 @@ async def async_setup_entry(
     sensors.append(CropSteeringStockSensor(entry))
     # What the controller runs for the room's next nutrient batch (feed_api.py).
     sensors.append(CropSteeringFeedPlanSensor(entry))
+    # The irrigation strategy the controller follows (strategy.py).
+    sensors.append(CropSteeringStrategyPlanSensor(entry))
 
     async_add_entities(sensors)
 
@@ -896,5 +898,63 @@ class CropSteeringFeedPlanSensor(SensorEntity):
         self.async_on_remove(
             async_dispatcher_connect(
                 self.hass, f"{SIGNAL}_{self._entry.entry_id}", self.async_write_ha_state
+            )
+        )
+
+
+class CropSteeringStrategyPlanSensor(SensorEntity):
+    """The irrigation strategy the controller app follows: the strategy's status as the state
+    (draft, armed, active, disarming or error), and as attributes the snapshot that
+    strategy.StrategyManager._publish builds. Rewritten at each publish: at setup, on every save,
+    arm and disarm, and each minute."""
+
+    _attr_should_poll = False
+    _attr_icon = "mdi:chart-timeline-variant"
+
+    def __init__(self, entry):
+        self._entry = entry
+        self._prefix = room_prefix(entry)
+        self._attr_unique_id = f"{DOMAIN}_{entry.entry_id}_strategy_plan"
+        self._attr_name = "Irrigation strategy"
+        # The id the controller app, health.py and run_store.py read.
+        self._attr_object_id = f"{DOMAIN}_{self._prefix}strategy_plan"
+        self.entity_id = f"sensor.{self._attr_object_id}"
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry.entry_id)},
+            name=PRODUCT_NAME,
+            manufacturer="Home Assistant Community",
+            model="Professional Irrigation Controller",
+            sw_version=SOFTWARE_VERSION,
+        )
+
+    @callback
+    def _show(self, snapshot) -> None:
+        self._attr_native_value, attributes = snapshot
+        self._attr_extra_state_attributes = dict(attributes)
+
+    @callback
+    def _published(self, snapshot) -> None:
+        self._show(snapshot)
+        self.async_write_ha_state()
+
+    async def async_added_to_hass(self) -> None:
+        from homeassistant.helpers.dispatcher import async_dispatcher_connect
+
+        from .strategy import SIGNAL
+
+        # Added after the room's strategy first published (enabled again, say): show its last.
+        manager = (
+            self.hass.data.get(DOMAIN, {})
+            .get("_strategy", {})
+            .get(self._entry.entry_id)
+        )
+        if manager is not None and manager.snapshot is not None:
+            self._show(manager.snapshot)
+        self.async_on_remove(
+            async_dispatcher_connect(
+                self.hass, f"{SIGNAL}_{self._entry.entry_id}", self._published
             )
         )

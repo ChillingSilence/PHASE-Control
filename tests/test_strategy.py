@@ -3,7 +3,8 @@
 import copy
 import asyncio
 from datetime import datetime, timedelta, timezone
-from types import SimpleNamespace
+import sys
+from types import ModuleType, SimpleNamespace
 
 import pytest
 
@@ -77,17 +78,29 @@ def manager_fixture(monkeypatch, prefix="", store=None):
         "healthy",
         {"enable_flag": flag, "strategy_snapshot_version": 1},
     )
-    state_api = SimpleNamespace(
-        get=states.get,
-        async_set=lambda eid, state, attributes: put(eid, state, attributes),
-    )
+    # No async_set: the manager never writes a state itself.
+    state_api = SimpleNamespace(get=states.get)
     entry = SimpleNamespace(
         entry_id=prefix or "default", data={"room_prefix": prefix}, options={}
     )
+
+    def published(signal, snapshot):
+        # What the room's Irrigation strategy sensor does at each publish (sensor.py): write the
+        # snapshot it is sent as its state. tests_ha/test_strategy_plan_entity.py proves the real one.
+        assert signal == f"crop_steering_strategy_published_{entry.entry_id}"
+        assert snapshot is manager.snapshot
+        put(manager.entity_id, *snapshot)
+
     hass = SimpleNamespace(
         states=state_api,
         data={"crop_steering": {entry.entry_id: {"num_zones": 1, "zones": {"1": {}}}}},
+        published=published,
     )
+    dispatcher = ModuleType("homeassistant.helpers.dispatcher")
+    dispatcher.async_dispatcher_send = lambda hass, signal, *args: hass.published(
+        signal, *args
+    )
+    monkeypatch.setitem(sys.modules, "homeassistant.helpers.dispatcher", dispatcher)
     manager = StrategyManager(hass, entry, store or MemoryStore())
     return manager, states, now
 
