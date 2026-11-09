@@ -12,8 +12,10 @@ They are deliberately minimal: just enough surface for the code under test. Call
 
 from __future__ import annotations
 
+import asyncio
 import sys
 import types
+import zoneinfo
 from datetime import datetime, timezone
 
 
@@ -127,6 +129,16 @@ def install() -> None:
         # hass.helpers.template.now() (the bug under test).
         dt.now = lambda: datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
         dt.utcnow = lambda: datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
+    if not hasattr(dt, "async_get_time_zone"):
+
+        async def async_get_time_zone(name):
+            # As Home Assistant's: read from disk in another thread; None for no such zone.
+            try:
+                return await asyncio.to_thread(zoneinfo.ZoneInfo, name)
+            except (zoneinfo.ZoneInfoNotFoundError, ValueError, OSError):
+                return None
+
+        dt.async_get_time_zone = async_get_time_zone
     util.dt = dt
 
 
