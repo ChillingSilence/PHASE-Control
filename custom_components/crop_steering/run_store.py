@@ -8,7 +8,6 @@ from datetime import date, datetime, timezone
 import math
 import re
 from uuid import uuid4
-from zoneinfo import ZoneInfo
 
 from .const import DOMAIN, MAX_ZONES
 from .room import room_prefix
@@ -53,7 +52,8 @@ def plant_number(value):
     return int(result)
 
 
-def normalize_record(raw, room_id):
+def normalize_record(raw, room_id, zones):
+    """`zones` maps each time zone name RunStore._load_zones has read to its zone, None if none."""
     if not isinstance(raw, dict) or raw.get("room_id") != room_id:
         raise ValueError("Run belongs to another room")
     identifier = bounded_text(raw.get("id"), "Run ID", 64)
@@ -61,7 +61,8 @@ def normalize_record(raw, room_id):
         raise ValueError("Invalid run ID")
     dates(raw.get("start_date"), raw.get("end_date"))
     tz = bounded_text(raw.get("time_zone"), "Time zone", 80)
-    ZoneInfo(tz)
+    if zones.get(tz) is None:
+        raise ValueError(f"Unknown time zone: {tz}")
     captured = datetime.fromisoformat(
         str(raw.get("captured_at", "")).replace("Z", "+00:00")
     )
@@ -149,6 +150,8 @@ class RunStore:
         self.prefix = room_prefix(entry)
         self.room_id = "room:" + self.prefix
         self.time_zone = getattr(getattr(hass, "config", None), "time_zone", "UTC")
+        # Each time zone name read so far, with its zone (None: no such time zone).
+        self._zones = {}
         self._store = store
         self._lock = asyncio.Lock()
         self.document = {"revision": 0, "runs": []}
@@ -162,6 +165,7 @@ class RunStore:
                 self._store = Store(
                     self.hass, 1, f"{DOMAIN}.runs.{self.entry.entry_id}"
                 )
+            await self._load_zones()
             value = await self._store.async_load()
             if value is not None:
                 if (
@@ -170,15 +174,46 @@ class RunStore:
                     or value["revision"] < 0
                 ):
                     raise ValueError("Invalid stored revision")
-                records = self._records(value.get("runs"))
+                records = await self._records(value.get("runs"))
                 self.document = {"revision": value["revision"], "runs": records}
         except Exception as error:
             self.error = f"Stored run metadata could not be loaded; it has not been overwritten: {error}"
 
-    def _records(self, values):
+    async def _load_zones(self, records=()):
+        """Read the room's time zone, and each one these records name, once a name.
+
+        The first ZoneInfo for a name reads the time zone database from disk, so never on the
+        event loop: Home Assistant's async_get_time_zone reads it in the executor.
+        """
+        from homeassistant.util import dt as dt_util
+
+        names = {self.time_zone} | {
+            record["time_zone"].strip()
+            for record in records
+            if isinstance(record, dict) and isinstance(record.get("time_zone"), str)
+        }
+        for name in names:
+            if name in self._zones:
+                continue
+            try:
+                self._zones[name] = await dt_util.async_get_time_zone(name)
+            except (ValueError, OSError):
+                # A malformed name: async_get_time_zone raises before Home Assistant 2026.11.
+                self._zones[name] = None
+
+    def _today(self):
+        zone = self._zones.get(self.time_zone)
+        if zone is None:
+            raise ValueError(f"Unknown time zone: {self.time_zone}")
+        return datetime.now(zone).date()
+
+    async def _records(self, values):
         if not isinstance(values, list) or len(values) > MAX_RUNS:
             raise ValueError("At most 100 runs can be stored per room")
-        records = [normalize_record(value, self.room_id) for value in values]
+        await self._load_zones(values)
+        records = [
+            normalize_record(value, self.room_id, self._zones) for value in values
+        ]
         if len({record["id"] for record in records}) != len(records):
             raise ValueError("Duplicate run IDs")
         return records
@@ -342,6 +377,7 @@ class RunStore:
                 "archived": False,
             },
             self.room_id,
+            self._zones,
         )
 
     async def mutate(self, action, data):
@@ -359,7 +395,7 @@ class RunStore:
                 if not isinstance(raw, dict):
                     raise ValueError("A run record is required")
                 first, last = dates(raw.get("start_date"), raw.get("end_date"))
-                today = datetime.now(ZoneInfo(self.time_zone)).date()
+                today = self._today()
                 if not last and (today - first).days > 365:
                     raise ValueError("Close runs older than 366 days with an end date")
                 existing = next((r for r in values if r["id"] == raw.get("id")), None)
@@ -382,7 +418,7 @@ class RunStore:
                     )
                 record["archived"] = data["archived"]
             elif action == "runs_import":
-                incoming = self._records(data.get("runs"))
+                incoming = await self._records(data.get("runs"))
                 allowed = {
                     z[key]
                     for r in values
@@ -392,11 +428,7 @@ class RunStore:
                 }
                 for record in incoming:
                     first, last = dates(record["start_date"], record["end_date"])
-                    if (
-                        not last
-                        and (datetime.now(ZoneInfo(self.time_zone)).date() - first).days
-                        > 365
-                    ):
+                    if not last and (self._today() - first).days > 365:
                         raise ValueError(
                             "Close imported runs older than 366 days with an end date"
                         )
@@ -414,7 +446,7 @@ class RunStore:
                     values = [r for r in values if r["id"] != record["id"]] + [record]
             else:
                 raise ValueError("Unsupported run operation")
-            normalized = self._records(values)
+            normalized = await self._records(values)
             next_document = {
                 "revision": self.document["revision"] + 1,
                 "runs": normalized,

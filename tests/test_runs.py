@@ -4,11 +4,22 @@ import asyncio
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
+from zoneinfo import ZoneInfo
 
 import pytest
 
-from custom_components.crop_steering.run_api import resolve_runs
-from custom_components.crop_steering.run_store import RunStore, normalize_record
+from . import ha_stubs
+
+ha_stubs.install()
+
+from custom_components.crop_steering.run_api import resolve_runs  # noqa: E402
+from custom_components.crop_steering.run_store import (  # noqa: E402
+    RunStore,
+    normalize_record,
+)
+
+# The fixture room's time zone, as RunStore._load_zones would have read it.
+ZONES = {"Pacific/Auckland": ZoneInfo("Pacific/Auckland")}
 
 
 class MemoryStore:
@@ -82,6 +93,13 @@ def fixture(prefix="", persisted=None):
     return store, response, put
 
 
+def ready(prefix="", persisted=None):
+    """fixture(), set up as Home Assistant sets it up: async_init reads the room's time zone."""
+    store, response, put = fixture(prefix, persisted)
+    asyncio.run(store.async_init())
+    return store, response, put
+
+
 def raw(**changes):
     return {
         "name": "Trial A",
@@ -128,14 +146,14 @@ def test_register_backdated_run_captures_now_and_edit_preserves_snapshot():
     [("unavailable", 6), ("unknown", 6), ("", 6), ("Vegetative", 3)],
 )
 def test_manual_reference_uses_controller_growth_stage_fallback(zone_mode, expected):
-    store, _, put = fixture()
+    store, _, put = ready()
     put("zone_1_steering_mode", zone_mode, "select")
     assert store.capture(raw())["zones"][0]["parameters"]["ec_target_p2"] == expected
 
 
 @pytest.mark.parametrize("status", ["active", "disarming"])
 def test_capture_uses_published_snapshot_not_newer_unpublished_document(status):
-    store, response, put = fixture()
+    store, response, put = ready()
     now = datetime.now(timezone.utc)
     response.update(
         status=status,
@@ -167,7 +185,7 @@ def test_capture_uses_published_snapshot_not_newer_unpublished_document(status):
 
 
 def test_expired_plan_is_labeled_fallback_and_invalid_plant_count_unknown():
-    store, response, put = fixture()
+    store, response, put = ready()
     response.update(
         status="active",
         active={
@@ -254,13 +272,13 @@ def test_archive_restore_and_room_bound_import():
     ],
 )
 def test_invalid_metadata_rejected(changes):
-    store, _, _ = fixture()
+    store, _, _ = ready()
     with pytest.raises(ValueError):
         store.capture(raw(**changes))
 
 
 def test_import_validation_rejects_nan_fractional_counts_and_unsupported_parameters():
-    store, _, _ = fixture()
+    store, _, _ = ready()
     record = store.capture(raw())
     for mutate in [
         lambda r: r["zones"][0].update(plant_count=1.5),
@@ -270,7 +288,7 @@ def test_import_validation_rejects_nan_fractional_counts_and_unsupported_paramet
         value = deepcopy(record)
         mutate(value)
         with pytest.raises(ValueError):
-            normalize_record(value, "room:")
+            normalize_record(value, "room:", ZONES)
 
 
 def test_corrupt_store_is_readonly_and_unknown_or_ambiguous_room_rejected():
@@ -293,14 +311,14 @@ def test_corrupt_store_is_readonly_and_unknown_or_ambiguous_room_rejected():
 
 
 def test_zone_count_and_duplicate_ids_are_bounded():
-    store, _, _ = fixture()
+    store, _, _ = ready()
     record = store.capture(raw())
     record["zones"] = [record["zones"][0]] * 25
     with pytest.raises(ValueError, match="1–24"):
-        normalize_record(record, "room:")
+        normalize_record(record, "room:", ZONES)
     record["zones"] = record["zones"][:2]
     with pytest.raises(ValueError, match="unique"):
-        normalize_record(record, "room:")
+        normalize_record(record, "room:", ZONES)
 
 
 def test_more_than_100_runs_and_old_ongoing_import_are_rejected():
@@ -318,5 +336,53 @@ def test_more_than_100_runs_and_old_ongoing_import_are_rejected():
                 "runs_import", {"expected_revision": 0, "runs": [record]}
             )
         assert store.document["revision"] == 0
+
+    asyncio.run(scenario())
+
+
+def test_time_zones_are_read_through_home_assistant_once_a_name(monkeypatch):
+    """The first ZoneInfo for a name reads the time zone database from disk, never to be done on
+    the event loop: the store asks Home Assistant's async_get_time_zone, which reads it in the
+    executor (tests_ha/test_run_time_zones.py proves it in a real Home Assistant)."""
+    from homeassistant.util import dt as dt_util
+
+    asked = []
+    read = dt_util.async_get_time_zone
+
+    async def spy(name):
+        asked.append(name)
+        return await read(name)
+
+    monkeypatch.setattr(dt_util, "async_get_time_zone", spy)
+
+    async def scenario():
+        store, _, _ = fixture()
+        await store.async_init()
+        saved = await store.mutate(
+            "runs_save", {"expected_revision": 0, "record": raw()}
+        )
+        # Kept as the stripped name, which is the name read and looked up.
+        elsewhere = dict(saved["runs"][0], id="elsewhere", time_zone=" Europe/Lisbon ")
+        await store.mutate("runs_import", {"expected_revision": 1, "runs": [elsewhere]})
+        assert asked == ["Pacific/Auckland", "Europe/Lisbon"]
+        for name in ("Mars/Olympus", "../etc/passwd", "/etc/localtime"):
+            with pytest.raises(ValueError, match="Unknown time zone"):
+                await store.mutate(
+                    "runs_import",
+                    {"expected_revision": 2, "runs": [dict(elsewhere, time_zone=name)]},
+                )
+        assert store.document["revision"] == 2
+        restored, _, _ = fixture(persisted=store._store.value)
+        await restored.async_init()
+        assert [run["time_zone"] for run in restored.response()["runs"]] == [
+            "Pacific/Auckland",
+            "Europe/Lisbon",
+        ]
+        # A stored run in no time zone leaves the store read-only, as any bad record does.
+        persisted = deepcopy(store._store.value)
+        persisted["runs"][1]["time_zone"] = "Mars/Olympus"
+        unreadable, _, _ = fixture(persisted=persisted)
+        await unreadable.async_init()
+        assert "Unknown time zone: Mars/Olympus" in unreadable.response()["error"]
 
     asyncio.run(scenario())

@@ -10,6 +10,32 @@ and code-level detail for developers and AI agents working on the repo.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- **Time zones read in the background.** A grow run names its time zone, and registering or
+  importing one could make Home Assistant stop everything else while it read that time zone from
+  disk. Each one is now read in the background, once, as the Marketplace's review asked.
+
+### 🔧 Technical notes
+
+- `run_store.py` no longer builds a `ZoneInfo` on the event loop, which for a new name reads the
+  time zone database from disk. Home Assistant's review of the Marketplace submission
+  (hacs/default#13655) found `mutate`'s `datetime.now(ZoneInfo(self.time_zone))`, and
+  `normalize_record`'s `ZoneInfo(tz)` did the same for every run loaded, saved or imported.
+  `RunStore._load_zones` reads the room's time zone at setup, and each one the records name before
+  they are checked, through `dt_util.async_get_time_zone` (the executor), once a name.
+  `normalize_record` takes that map and refuses a name that is no time zone with "Unknown time
+  zone: …", where it let the bare `ZoneInfoNotFoundError` through before. On Home Assistant
+  before 2026.11, `async_get_time_zone` raises `ValueError` for a malformed name; that is caught
+  too. `_records` is a coroutine now.
+- Tests: `tests_ha/test_run_time_zones.py` registers and imports runs in a real Home Assistant
+  while an audit hook notes each time zone file the process opens, and whether the event loop
+  opened it. On the old code, importing a run in `Pacific/Chatham` opened
+  `/usr/share/zoneinfo/Pacific/Chatham` on the event loop. It also has `Mars/Olympus`,
+  `../etc/passwd` and `/etc/localtime` refused, on every Home Assistant version tested.
+  `tests/test_runs.py` checks that each name is asked of `async_get_time_zone` once, and
+  `tests/ha_stubs.py` stands in for it.
+
 ## [1.6.6] - 2026-11-08
 
 Integration and controller **1.6.6**.
