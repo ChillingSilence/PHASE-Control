@@ -10,7 +10,9 @@ and code-level detail for developers and AI agents working on the repo.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.6.8] - 2026-11-10
+
+Integration and controller **1.6.8**.
 
 - **The irrigation strategy is a proper sensor now.** What the controller follows was a value
   written straight into Home Assistant: on no device, and nobody could rename it or turn it off. It
