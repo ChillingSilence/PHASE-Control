@@ -21,6 +21,10 @@ people who build the system:
 `tests/test_whats_new.py` checks the shape and the plain words, and that the newest section is the
 version being released.
 
+## 1.6.7 - 2026-11-10
+
+- Bug fixes and improvements.
+
 ## 1.6.6 - 2026-11-08
 
 - Bug fixes and improvements.

@@ -10,7 +10,9 @@ and code-level detail for developers and AI agents working on the repo.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.6.7] - 2026-11-10
+
+Integration and controller **1.6.7**.
 
 - **Time zones read in the background.** A grow run names its time zone, and registering or
   importing one could make Home Assistant stop everything else while it read that time zone from
