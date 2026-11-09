@@ -10,6 +10,36 @@ and code-level detail for developers and AI agents working on the repo.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- **The irrigation strategy is a proper sensor now.** What the controller follows was a value
+  written straight into Home Assistant: on no device, and nobody could rename it or turn it off. It
+  is now the Irrigation strategy sensor on the room's device, under the same id, so the controller
+  finds it as before. The Marketplace's review asked for this.
+
+### 🔧 Technical notes
+
+- `sensor.crop_steering_<prefix>strategy_plan` is a `SensorEntity`,
+  `CropSteeringStrategyPlanSensor` in `sensor.py`, built as Feed plan is: unique id
+  `crop_steering_<entry_id>_strategy_plan`, the explicit entity id that the controller app,
+  `health.py` and `run_store.py` read, on the room's device, named "Irrigation strategy". Home
+  Assistant's review of the Marketplace submission (hacs/default#13655) found
+  `StrategyManager._publish` writing it with `hass.states.async_set`, with no entity behind it.
+- `_publish` keeps the snapshot as `StrategyManager.snapshot` and sends it with the
+  `crop_steering_strategy_published_<entry_id>` signal (`strategy.SIGNAL`); the sensor writes it.
+  The sensor platform is set up before the strategy manager, so the sensor hears the first publish,
+  and one added later shows the manager's last snapshot. The attributes are the ones the controller
+  reads, without the `friendly_name` that was written by hand: Home Assistant names the sensor
+  after the room's device, "PHASE Control Irrigation strategy", as it names Feed plan.
+- The controller app is unchanged. It reads the same id and attributes, and it treats an unknown
+  or unavailable state as it treated a missing one.
+- Tests: `tests_ha/test_strategy_plan_entity.py` checks the registry entry and the device, that
+  each publish reaches the entity and a new name stays, and that the controller finds the snapshot
+  for its room. In `tests_ha/test_upgrade_in_place.py` each of the three seeded old installs gains
+  it under the same id, never `_2`. Against the old code the entity tests fail.
+  `tests/test_strategy.py` has no `async_set` any more: its stand-in dispatcher writes what the
+  sensor would. `docs/ENTITIES.md` documents `strategy_plan`.
+
 ## [1.6.7] - 2026-11-10
 
 Integration and controller **1.6.7**.
